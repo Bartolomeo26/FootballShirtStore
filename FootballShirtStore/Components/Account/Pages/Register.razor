@@ -85,6 +85,10 @@
         var user = CreateUser();
         user.Address = Input.Address;
         user.Name = Input.Name;
+        if (Input.Email.Contains("@admin"))
+            user.IsAdmin = true;
+        else
+            user.IsAdmin = false;
         user.Surname = Input.Surname;
         user.EmailConfirmed = true;
         await UserStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);

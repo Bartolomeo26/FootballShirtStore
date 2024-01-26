@@ -14,6 +14,8 @@ namespace FootballShirtStore.Data
         public string Surname { get; set; }
         [Required]
         public string Address { get; set; }
+        [Required]
+        public bool IsAdmin { get; set; }
     }
 
 }
