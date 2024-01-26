@@ -8,8 +8,6 @@ namespace FootballShirtStore.Data
     // Add profile data for application users by adding properties to the ApplicationUser class
     public class ApplicationUser : IdentityUser
     {
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id {  get; set; }
         [Required]
         public string Name { get; set; }
         [Required]

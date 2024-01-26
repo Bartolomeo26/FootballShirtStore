@@ -20,7 +20,6 @@ namespace FootballShirtStore.Entities
         public DateTime DateCreated { get; set; } = DateTime.UtcNow;
         public DateTime? DateCompleted { get; set; }
         public ApplicationUser User { get; set; }
-        public int UserId { get; set; }
         public State State { get; set; } = State.Accepted;
         public ICollection<Item> Items { get; set; } = new List<Item>();
     }
