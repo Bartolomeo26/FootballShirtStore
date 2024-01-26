@@ -5,15 +5,26 @@
         <div class="container justify-content-end align-items-center">
             <div class="d-sm-inline-flex">
                 <ul class="navbar-nav flex-grow-1 d-flex align-items-center">
+                <li class="nav-item">
+                    <a class="nav-link" asp-area="" href="/Contact" asp-page="/Contact">Contact</a>
+                </li>
+                    <AuthorizeView>
+                        <NotAuthorized>
                     <li class="nav-item">
                         <a class="nav-link" asp-area="" href="/Account/Register" asp-page="/Account/Register">Register</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" asp-area="" href="/Account/Login" asp-page="/Account/Login">Login</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" asp-area="" href="/Contact" asp-page="/Contact">Contact</a>
-                    </li>
+                    </NotAuthorized>
+
+                    <Authorized>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" href="/Account/Manage" asp-page="/">
+                                <span class="bi bi-person-fill-nav-menu" aria-hidden="true"></span> @context.User.Identity?.Name
+                            </a>
+                        </li>
+                        
                     <li class="nav-item">
                         <a class="nav-link" asp-area="" href="/Cart" asp-page="/Cart">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-basket" viewBox="0 0 16 16">
@@ -21,6 +32,18 @@
                             </svg> Cart
                         </a>
                     </li>
+                        <li class="nav-item">
+                        <form action="Account/Logout" method="post">
+                            <AntiforgeryToken />
+                            <input type="hidden" name="ReturnUrl" value="@currentUrl" />
+                            <button type="submit" class="nav-link">
+                                <span class="bi bi-arrow-bar-left-nav-menu" aria-hidden="true"></span> Logout
+                            </button>
+                        </form>
+                        </li>
+                    </Authorized>
+                </AuthorizeView>
+                
                 </ul>
             </div>
         </div>
@@ -55,6 +78,22 @@
     </nav>
 
 @code {
-   
-}
+    private string? currentUrl;
 
+    protected override void OnInitialized()
+    {
+        currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        currentUrl = NavigationManager.ToBaseRelativePath(e.Location);
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
+    }
+}
