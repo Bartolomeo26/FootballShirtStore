@@ -1,0 +1,106 @@
+﻿@page "/shirts/new"
+
+@inject NavigationManager _manager
+
+@inject ApplicationDbContext dbContext
+@using FootballShirtStore.Data
+@using FootballShirtStore.Entities
+@using Microsoft.AspNetCore.Components.Forms
+@using System.ComponentModel.DataAnnotations
+
+<PageTitle>Creating Shirt</PageTitle>
+<div class="row mb-3 mt-3">
+    <div class="col-md-6 offset-md-3">
+        <h1>Create a new Shirt</h1>
+        <h3>Add New Item</h3>
+        <EditForm Model="@newItem" OnValidSubmit="@AddItem" FormName="itemForm">
+            <div class="form-group">
+                <label for="Name">Name:</label>
+                <InputText id="Name" @bind-Value="newItem.Name" class="form-control" />
+                <ValidationMessage For="@(() => newItem.Name)" />
+            </div>
+
+            <div class="form-group">
+                <label for="Price">Price:</label>
+                <InputNumber id="Price" @bind-Value="newItem.Price" class="form-control" />
+                <ValidationMessage For="@(() => newItem.Price)" />
+            </div>
+
+            <div class="form-group">
+                <label for="PriceMultiplier">Price Multiplier:</label>
+                <InputNumber id="PriceMultiplier" @bind-Value="newItem.PriceMultiplier" class="form-control" />
+                <ValidationMessage For="@(() => newItem.PriceMultiplier)" />
+            </div>
+
+            <div class="form-group">
+                <label for="Color">Color:</label>
+                <InputSelect id="Color" @bind-Value="newItem.Color" class="form-control">
+                    @foreach (var color in Enum.GetValues(typeof(Color)))
+                    {
+                        <option value="@color">@color.ToString()</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(() => newItem.Color)" />
+            </div>
+
+            <div class="form-group">
+                <label for="Type">Type:</label>
+                <InputSelect id="Type" @bind-Value="newItem.Type" class="form-control">
+                    @foreach (var type in Enum.GetValues(typeof(ItemType)))
+                    {
+                        <option value="@type">@type.ToString()</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(() => newItem.Type)" />
+            </div>
+
+            <div class="form-group">
+                <label for="Description">Description:</label>
+                <InputTextArea id="Description" class="form-control" @bind-Value="newItem.Description" />
+                <ValidationMessage For="@(() => newItem.Description)" />
+            </div>
+
+            
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">Add Item</button>
+            </div>
+        </EditForm>
+
+      
+    </div>
+</div>
+<script src="script.js"></script>
+
+@code {
+    private Item newItem = new Item();
+    private List<Category> categories = new List<Category>();
+
+
+    protected override void OnInitialized()
+    {
+        
+    }
+
+    private void AddItem()
+    {
+        var editContext = new EditContext(newItem);
+
+        // Sprawdź, czy formularz jest poprawny
+        if (editContext.Validate())
+        {
+            // Ustaw datę utworzenia przed dodaniem do bazy danych
+            newItem.DateCreated = DateTime.UtcNow;
+
+            // Ustaw opcjonalnie CategoryId na podstawie wybranej kategorii
+            // newItem.CategoryId = selectedCategoryId;
+
+            // Dodaj nowy element do bazy danych
+            dbContext.Items.Add(newItem);
+            dbContext.SaveChanges();
+
+            // Opcjonalnie, wyczyść formularz
+            newItem = new Item();
+        }
+    }
+  }
