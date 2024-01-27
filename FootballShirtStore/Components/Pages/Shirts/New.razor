@@ -1,19 +1,18 @@
 ﻿@page "/shirts/new"
-
 @inject NavigationManager _manager
-
 @inject ApplicationDbContext dbContext
 @using FootballShirtStore.Data
 @using FootballShirtStore.Entities
 @using Microsoft.AspNetCore.Components.Forms
 @using System.ComponentModel.DataAnnotations
+@rendermode InteractiveServer
 
 <PageTitle>Creating Shirt</PageTitle>
 <div class="row mb-3 mt-3">
     <div class="col-md-6 offset-md-3">
         <h1>Create a new Shirt</h1>
         <h3>Add New Item</h3>
-        <EditForm Model="@newItem" OnValidSubmit="@AddItem" FormName="itemForm">
+        <EditForm Model="newItem" OnValidSubmit="AddItem" FormName="itemForm">
             <div class="form-group">
                 <label for="Name">Name:</label>
                 <InputText id="Name" @bind-Value="newItem.Name" class="form-control" />
