@@ -1,5 +1,71 @@
-﻿<h3>New</h3>
+﻿@page "/categories/new"
+@inject NavigationManager _manager
+@inject ApplicationDbContext dbContext
+@using FootballShirtStore.Data
+@using FootballShirtStore.Entities
+@using Microsoft.AspNetCore.Components.Forms
+@using System.ComponentModel.DataAnnotations
+@rendermode InteractiveServer
+
+<h3>New Category</h3>
+
+<PageTitle>Creating Category</PageTitle>
+<div class="row mb-3 mt-3">
+    <div class="col-md-6 offset-md-3">
+        <h1>Create a new Category</h1>
+        <h3>Add New Category</h3>
+        <EditForm Model="newCategory" OnValidSubmit="AddCategory" FormName="categoryForm">
+            <div class="form-group">
+                <label for="Name">Category name:</label>
+                <InputText id="Name" @bind-Value="newCategory.CategoryName" class="form-control" />
+                <ValidationMessage For="@(() => newCategory.CategoryName)" />
+            </div>
+            <div class="form-group">
+                <label for="ParentCategory">Parent Category:</label>
+                <InputSelect id="ParentCategory" @bind-Value="newCategory.ParentCategoryId" class="form-control">
+                    <option value="">Select Parent Category</option>
+                    @foreach (var parentCategory in parentCategories)
+                    {
+                        <option value="@parentCategory.Id">@parentCategory.CategoryName</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(() => newCategory.ParentCategoryId)" />
+            </div>
+
+            <div class="form-group mt-3">
+                <button type="submit" class="btn btn-primary">Add Item</button>
+            </div>
+        </EditForm>
+
+
+    </div>
+</div>
+<script src="script.js"></script>
+
 
 @code {
+    private Category newCategory = new Category();
+    private List<Category> parentCategories = new List<Category>();
 
+    protected override void OnInitialized()
+    {
+        parentCategories = dbContext.Categories.ToList();
+    }
+
+    private void AddCategory()
+    {
+        var editContext = new EditContext(newCategory);
+
+        // Sprawdź, czy formularz jest poprawny
+        if (editContext.Validate())
+        {
+            
+            // Dodaj nowy element do bazy danych
+            dbContext.Categories.Add(newCategory);
+            dbContext.SaveChanges();
+
+            // Opcjonalnie, wyczyść formularz
+            newCategory = new Category();
+        }
+    }
 }

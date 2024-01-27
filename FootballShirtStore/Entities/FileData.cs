@@ -12,12 +12,12 @@ namespace FootballShirtStore.Entities
         [Required]
         public string Description { get; set; }
         [Required]
-        public DataType Type { get; set; }
+        public FileDataType Type { get; set; }
         
     }
-    public enum DataType
+    public enum FileDataType
     {
         Image,
-        Other
+        Doc
     }
 }

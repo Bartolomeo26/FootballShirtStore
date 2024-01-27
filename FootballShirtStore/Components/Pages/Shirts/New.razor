@@ -58,10 +58,26 @@
                 <InputTextArea id="Description" class="form-control" @bind-Value="newItem.Description" />
                 <ValidationMessage For="@(() => newItem.Description)" />
             </div>
+            <div class="form-group">
+                <label for="Category">Category:</label>
+                <InputSelect id="Category" @bind-Value="newItem.CategoryId" class="form-control">
+                    <option value="">Select Category</option>
+                    @foreach (var category in categories)
+                    {
+                        <option value="@category.Id">@category.CategoryName</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(() => newItem.Category)" />
+            </div>
+            <div class="form-group">
+                <label for="Image">Image:</label>
+                <InputFile id="Image" OnChange="@HandleFileUpload" class="form-control" />
+                <ValidationMessage For="@(() => newItem.FileData)" />
+            </div>
 
             
 
-            <div class="form-group">
+            <div class="form-group mt-3">
                 <button type="submit" class="btn btn-primary">Add Item</button>
             </div>
         </EditForm>
@@ -78,7 +94,29 @@
 
     protected override void OnInitialized()
     {
+        categories = dbContext.Categories.ToList();
+    }
+    private async Task HandleFileUpload(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
         
+        // Sprawdź, czy plik istnieje i nie jest pusty
+        if (file != null && file.Size > 0)
+        {
+            // Przygotuj dane pliku do zapisu w bazie danych
+            var fileData = new FileData
+            {
+                Data = new byte[file.Size],
+                Description = "Image description", // Ustaw opis pliku (możesz dostosować)
+                Type = FileDataType.Image
+            };
+
+            // Odczytaj dane pliku
+            await file.OpenReadStream().ReadAsync(fileData.Data);
+
+            // Dodaj dane pliku do obiektu newItem
+            newItem.FileData.Add(fileData);
+        }
     }
 
     private void AddItem()
