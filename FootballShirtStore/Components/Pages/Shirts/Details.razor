@@ -2,20 +2,33 @@
 @inject ApplicationDbContext dbContext
 @using FootballShirtStore.Data
 @using FootballShirtStore.Entities
+@using Microsoft.EntityFrameworkCore
 @rendermode InteractiveServer
 
 <PageTitle>@item.Name</PageTitle>
 
-@if (item != null)
+@if (item != null && item.Category !=null)
 {
+    var img = item.FileData.FirstOrDefault(f => f.Type == FileDataType.Image);
+    var base64String = Convert.ToBase64String(img.Data);
+   
 
-    <div class="d-flex justify-content-center w-100">
-        <div class="d-flex flex-row justify-content-center align-items-center bg-light p-3 w-75">
-            <img src="https://i.ebayimg.com/images/g/kxQAAOSweqFj0ByL/s-l1200.webp" class="shirt-image rounded-3" />
-            <div class="d-flex flex-column justify-content-start align-items-start h-100 ms-3">
+        <div class="d-flex justify-content-center w-100 mt-5">
+            <div class="d-flex flex-row justify-content-evenly shirt-details-card align-items-center bg-light rounded-3 p-3 w-50">
+                @if (item.FileData.Any())
+        {
+                <div class="d-flex flex-wrap ms-3 images">
+                @foreach (var fileData in item.FileData)
+                {
+                    <img src="@($"data:image/png;base64,{Convert.ToBase64String(fileData.Data)}")" class="img-fluid rounded-5 shirt-details-image" alt="Image" style="max-width: 200px; max-height: 200px; margin: 10px;" />
+                }
+            </div>
+        }
+            <div class="d-flex flex-column info justify-content-start align-items-start h-100 border-2 border-secondary ps-5 border-start ms-5">
                 <p>For @item.Type</p>
-                <h1>@item.Name</h1>
-                <h2>@item.Price</h2>
+                <p>@item.Category.ParentCategory.CategoryName: @item.Category.CategoryName</p>
+                <h3>@item.Name</h3>
+                <h4>Pricea: @item.Price</h4>
                 <p class="fs-5">@item.Description</p>
                 <p>Color: @item.Color</p>
                 <div>
@@ -23,18 +36,9 @@
                 </div>
             </div>
 
-        </div>
-    </div>
-        @if (item.FileData.Any())
-        {
-            <h5>Images:</h5>
-            <div>
-                @foreach (var fileData in item.FileData)
-                {
-                    <img src="@($"data:image/png;base64,{Convert.ToBase64String(fileData.Data)}")" alt="Image" style="max-width: 200px; max-height: 200px; margin: 10px;" />
-                }
             </div>
-        }
+        </div>
+        
   
 }
 else
@@ -49,7 +53,7 @@ else
 
     private Item item;
 
-    
+
 
     protected override void OnInitialized()
     {
@@ -57,7 +61,7 @@ else
         int itemId;
         if (int.TryParse(id, out itemId))
         {
-            item = dbContext.Items.FirstOrDefault(i => i.Id == itemId);
+            item = dbContext.Items.Include(i => i.FileData).Include(i => i.Category).Include(i => i.Category.ParentCategory).FirstOrDefault(i => i.Id == itemId);
         }
     }
    

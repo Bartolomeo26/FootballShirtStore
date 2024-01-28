@@ -114,3 +114,25 @@ a.item-card{
     color:black;
 
 }
+
+
+.item-card .card-img-top{
+    height: 200px;
+    width: 200px;
+
+}
+
+.shirt-details-image {
+    box-shadow: 4px 4px 24px 0px rgba(66, 68, 90, 1);
+}
+.shirt-details-card {
+    box-shadow: 4px 12px 39px -7px rgba(66, 68, 90, 1);
+}
+.images{
+
+    width:40%;
+}
+.info{
+    width: 60%;
+
+}
