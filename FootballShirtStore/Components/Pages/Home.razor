@@ -115,14 +115,24 @@
 @code {
 
     private VisitsCounter visitCounter;
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            if (visitCounter != null)
+            {
+                visitCounter.Counter++;
+                
+                dbContext.SaveChanges();
+            }
+            StateHasChanged();
+        }
+        return Task.CompletedTask;
+    }
 
     protected override void OnInitialized() {
 
         visitCounter = dbContext.Visits.FirstOrDefault();
-        if (visitCounter != null) {
-            visitCounter.Counter++;
-            Console.WriteLine("counter triggered");
-            dbContext.SaveChanges();
-        }
+        
     }
 }
