@@ -1,0 +1,12 @@
+﻿@code {
+    [Parameter] public string Address { get; set; }
+    [Parameter] public string Content { get; set; }
+}
+
+<div class="row gx-5">
+    <div class="col-7">
+        <h1>Send us a message</h1>
+        <h5>Contact us by sending an email</h5>
+        <a href="mailto:@Address" class="btn btn-primary">@Content</a>
+    </div>
+</div>
