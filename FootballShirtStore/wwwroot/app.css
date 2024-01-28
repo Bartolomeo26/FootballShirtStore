@@ -108,3 +108,9 @@ article {
     width:450px;
 
 }
+
+a.item-card{
+    text-decoration:none;
+    color:black;
+
+}

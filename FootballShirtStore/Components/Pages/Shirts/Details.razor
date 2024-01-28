@@ -1,23 +1,65 @@
 ﻿@page "/shirts/{id}"
+@inject ApplicationDbContext dbContext
+@using FootballShirtStore.Data
+@using FootballShirtStore.Entities
+@rendermode InteractiveServer
 
-<div class="d-flex justify-content-center w-100">
-<div class="d-flex flex-row justify-content-center align-items-center bg-light p-3 w-75">
-    <img src="https://i.ebayimg.com/images/g/kxQAAOSweqFj0ByL/s-l1200.webp" class="shirt-image rounded-3" />
-    <div class="d-flex flex-column justify-content-start align-items-start h-100 ms-3">
-        <p>For men</p>
-        <h1>419rupies</h1>
-        <p class="fs-5">Neymar JR FC Barcelona T-Shirts from season 14/15</p>
-        <p>Kolor: sraki</p>
-            <div>
-                <button class="btn btn-success">Add to basket</button>
+<PageTitle>@item.Name</PageTitle>
+
+@if (item != null)
+{
+
+    <div class="d-flex justify-content-center w-100">
+        <div class="d-flex flex-row justify-content-center align-items-center bg-light p-3 w-75">
+            <img src="https://i.ebayimg.com/images/g/kxQAAOSweqFj0ByL/s-l1200.webp" class="shirt-image rounded-3" />
+            <div class="d-flex flex-column justify-content-start align-items-start h-100 ms-3">
+                <p>For @item.Type</p>
+                <h1>@item.Name</h1>
+                <h2>@item.Price</h2>
+                <p class="fs-5">@item.Description</p>
+                <p>Color: @item.Color</p>
+                <div>
+                    <button class="btn btn-success">Add to basket</button>
+                </div>
             </div>
+
+        </div>
     </div>
-    
-</div>
-</div>
+        @if (item.FileData.Any())
+        {
+            <h5>Images:</h5>
+            <div>
+                @foreach (var fileData in item.FileData)
+                {
+                    <img src="@($"data:image/png;base64,{Convert.ToBase64String(fileData.Data)}")" alt="Image" style="max-width: 200px; max-height: 200px; margin: 10px;" />
+                }
+            </div>
+        }
+  
+}
+else
+{
+    <p>Item not found.</p>
+}
+
 @code {
 
+    [Parameter]
+    public string id { get; set; }
 
+    private Item item;
+
+    
+
+    protected override void OnInitialized()
+    {
+        // Pobierz przedmiot na podstawie identyfikatora z parametru adresu
+        int itemId;
+        if (int.TryParse(id, out itemId))
+        {
+            item = dbContext.Items.FirstOrDefault(i => i.Id == itemId);
+        }
+    }
    
 
 }

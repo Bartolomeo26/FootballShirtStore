@@ -1,0 +1,50 @@
+﻿@page "/shirts"
+@inject ApplicationDbContext dbContext
+@using FootballShirtStore.Data
+@using FootballShirtStore.Entities
+@rendermode InteractiveServer
+
+<PageTitle>Shirts</PageTitle>
+
+  
+
+@if (items != null && items.Any())
+{
+    <div class="d-flex justify-content-around flex-wrap">
+        @foreach (var item in items)
+           { var gowno = item.FileData.FirstOrDefault(f => f.Type == FileDataType.Image);
+       
+            @if (gowno is not null)
+            { var base64String = Convert.ToBase64String(gowno.Data);
+                <div>
+
+                    <a href="/shirts/@item.Id" class="item-card">
+                        <div class="card" style="width: 18rem; height: 25rem;">
+                            <img src="data:image/png;base64,@base64String" class="card-img-top" alt="@item.Name">
+                            <div class="card-body">
+                                <h5 class="card-title">@item.Name</h5>
+                                <p class="card-text">@item.Description</p>
+                            </div>
+                        </div>
+                    </a>
+
+                </div>
+            }
+        }
+    </div>
+}
+else
+{
+    <p>No items found.</p>
+}
+
+@code {
+    private List<Item> items;
+
+
+    protected override void OnInitialized()
+    {
+        // Pobierz wszystkie przedmioty z bazy danych
+        items = dbContext.Items.ToList();
+    }
+}
