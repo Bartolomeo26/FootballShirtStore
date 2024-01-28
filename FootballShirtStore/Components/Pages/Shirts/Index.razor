@@ -2,6 +2,7 @@
 @inject ApplicationDbContext dbContext
 @using FootballShirtStore.Data
 @using FootballShirtStore.Entities
+@using Microsoft.EntityFrameworkCore
 @rendermode InteractiveServer
 
 <PageTitle>Shirts</PageTitle>
@@ -45,6 +46,6 @@ else
     protected override void OnInitialized()
     {
         // Pobierz wszystkie przedmioty z bazy danych
-        items = dbContext.Items.ToList();
+        items = dbContext.Items.Include(i => i.FileData).ToList();
     }
 }
