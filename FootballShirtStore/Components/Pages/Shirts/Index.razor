@@ -11,26 +11,30 @@
 
 @if (items != null && items.Any())
 {
-    <div class="d-flex justify-content-around flex-wrap">
+    <div class="d-flex justify-content-around flex-wrap mt-5">
         @foreach (var item in items)
-           { var gowno = item.FileData.FirstOrDefault(f => f.Type == FileDataType.Image);
-       
-            @if (gowno is not null)
-            { var base64String = Convert.ToBase64String(gowno.Data);
+           { var img = item.FileData.FirstOrDefault(f => f.Type == FileDataType.Image);
+     
+             var base64String = Convert.ToBase64String(img.Data);
+             
                 <div>
 
                     <a href="/shirts/@item.Id" class="item-card">
-                        <div class="card" style="width: 18rem; height: 25rem;">
-                            <img src="data:image/png;base64,@base64String" class="card-img-top" alt="@item.Name">
+                        <div class="card d-flex flex-column align-items-start position-relative" style="width: 18rem; height: 25rem;">
+                            
+                            <img src="data:image/png;base64,@base64String" class="card-img-top img-fluid align-self-center"  alt="@item.Name">
                             <div class="card-body">
+                                <small class="card-text text-secondary">For @item.Type</small>
                                 <h5 class="card-title">@item.Name</h5>
                                 <p class="card-text">@item.Description</p>
+                            <p class="card-text fw-bold fs-5 positon-absolute bottom-0">Price: @item.Price</p>
                             </div>
                         </div>
                     </a>
 
                 </div>
-            }
+            
+            
         }
     </div>
 }
