@@ -1,5 +1,13 @@
 ﻿@page "/"
 
+@inject NavigationManager _manager
+@inject ApplicationDbContext dbContext
+@using FootballShirtStore.Data
+@using FootballShirtStore.Entities
+@using Microsoft.AspNetCore.Components.Forms
+@using System.ComponentModel.DataAnnotations
+@rendermode InteractiveServer
+
 <PageTitle>Home</PageTitle>
 
 <div class="text-center">
@@ -94,6 +102,27 @@
                     </a>
                 </div>
             </div>
+            @if (visitCounter is not null)
+            {
+                <div class="text-dark">
+                    <h4>Visits of our site: @(visitCounter.Counter - 1)</h4>
+                </div>
+            }
         </section>
     </main>
 </div>
+
+@code {
+
+    private VisitsCounter visitCounter;
+
+    protected override void OnInitialized() {
+
+        visitCounter = dbContext.Visits.FirstOrDefault();
+        if (visitCounter != null) {
+            visitCounter.Counter++;
+            Console.WriteLine("counter triggered");
+            dbContext.SaveChanges();
+        }
+    }
+}
