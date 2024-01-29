@@ -4,17 +4,15 @@
 @using FootballShirtStore.Data
 @inject ApplicationDbContext dbContext
 @inject NavigationManager navigationManagerLinker
+@inject Microsoft.AspNetCore.Identity.UserManager<ApplicationUser> UserManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
 @rendermode InteractiveServer
 
     <nav class="navbar navbar-dark navbar-expand-sm bg-primary border-bottom p-0" data-bs-theme="dark">
         <div class="container justify-content-end align-items-center">
             <div class="d-sm-inline-flex">
                 <ul class="navbar-nav flex-grow-1 d-flex align-items-center">
-                <li class="nav-item">
-                    <a class="nav-link" asp-area="" href="/shirts/new" asp-page="/shirts/new">
-                        Add a shirt
-                    </a>
-                </li>
+                
       
 
                     <AuthorizeView>
@@ -38,6 +36,16 @@
 
                     <Authorized>
                         <li class="nav-item">
+                            <a class="nav-link" asp-area="" href="/shirts/new" asp-page="/shirts/new">
+                                Add a shirt
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" href="/orders" asp-page="/orders">
+                                Users orders
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" asp-area="" href="/categories/new" asp-page="/categories/new">
                                 Create Category
                             </a>
@@ -49,7 +57,7 @@
                         </li>
                         
                     <li class="nav-item">
-                        <a class="nav-link" asp-area="" href="/Cart" asp-page="/Cart">
+                        <a class="nav-link" asp-area="" href="/shoppingCart" asp-page="/shoppingCart">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-basket" viewBox="0 0 16 16">
                                 <path d="M5.757 1.071a.5.5 0 0 1 .172.686L3.383 6h9.234L10.07 1.757a.5.5 0 1 1 .858-.514L13.783 6H15a1 1 0 0 1 1 1v1a1 1 0 0 1-1 1v4.5a2.5 2.5 0 0 1-2.5 2.5h-9A2.5 2.5 0 0 1 1 13.5V9a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h1.217L5.07 1.243a.5.5 0 0 1 .686-.172zM2 9v4.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V9H2zM1 7v1h14V7H1zm3 3a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-1 0v-3A.5.5 0 0 1 4 10zm2 0a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-1 0v-3A.5.5 0 0 1 6 10zm2 0a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-1 0v-3A.5.5 0 0 1 8 10zm2 0a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-1 0v-3a.5.5 0 0 1 .5-.5zm2 0a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-1 0v-3a.5.5 0 0 1 .5-.5z" />
                             </svg> Cart
@@ -175,8 +183,8 @@
                 </li>
                 
                 </ul>
-            <a class="nav-link" asp-area="" href="/shoppingCart" asp-page="/shoppingCart">
-                Shopping cart
+            <a class="nav-link" asp-area="" href="/users/@currentUser.Id/orders" asp-page="/contact/index">
+                Your orders
             </a>
                  <a class="nav-link" asp-area="" href="/contact/index" asp-page="/contact/index">
                         Contact us
@@ -194,6 +202,22 @@
 
     private List<Category> categories = new List<Category>();
     
+    private ApplicationUser currentUser;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var User = authState.User;
+        // Get the current authenticated user
+        var user = await UserManager.GetUserAsync(User);
+
+        if (user != null)
+        {
+            currentUser = user;
+
+        }
+
+    }
 
     private string? currentUrl;
 

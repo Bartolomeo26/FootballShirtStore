@@ -5,6 +5,7 @@
 @using Microsoft.EntityFrameworkCore
 @inject ILocalStorageService localStorage
 @inject ApplicationDbContext context
+@inject NavigationManager navigationManagerLinker
 @rendermode InteractiveServer
 
 <h3>ShoppingCart</h3>
@@ -44,7 +45,7 @@
 	}
 	<h2>Final price: @finalPrice zł</h2>
 	<div class="mt-3">
-		<button class="btn btn-success">Make an order</button>
+		<button class="btn btn-success" @onclick='()=>navigationManagerLinker.NavigateTo("/orders/new", forceLoad: true)'>Make an order</button>
 	</div>
 }
 @code {

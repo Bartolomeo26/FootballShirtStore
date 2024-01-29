@@ -20,7 +20,26 @@ namespace FootballShirtStore.Entities
         public DateTime DateCreated { get; set; } = DateTime.UtcNow;
         public DateTime? DateCompleted { get; set; }
         public ApplicationUser User { get; set; }
-        public State State { get; set; } = State.Accepted;
+		[Required]
+		public DeliveryMethod DeliveryMethod { get; set; }
+		[Required]
+		public PaymentMethod PaymentMethod { get; set; }
+		public State State { get; set; } = State.Accepted;
         public ICollection<Item> Items { get; set; } = new List<Item>();
+    }
+    public enum DeliveryMethod
+    {
+        InPost,
+        Courier,
+        Orlen,
+        DPD
+    }
+
+    public enum PaymentMethod
+    {
+        PayPal,
+        MasterCard,
+        Skrill,
+        PaySafeCard
     }
 }

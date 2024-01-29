@@ -1,0 +1,137 @@
+﻿@page "/orders/new"
+@using System.Security.Claims
+@using FootballShirtStore.Data
+@using FootballShirtStore.Entities
+@using Blazored.LocalStorage
+@using Microsoft.EntityFrameworkCore
+@inject Microsoft.AspNetCore.Identity.UserManager<ApplicationUser> UserManager
+@inject ILocalStorageService localStorage
+@inject ApplicationDbContext dbContext
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+@rendermode InteractiveServer
+
+<h1>An order for: </h1>
+
+@if (cart is not null)
+{
+	double finalPrice = 0;
+	foreach (var item in cart)
+	{
+		var price = item.Price * item.PriceMultiplier;
+		finalPrice += price;
+		<div class="mini-card">
+
+
+			<div class="card w-25 mb-3 ms-0">
+
+				<div class="card-body d-flex justify-content-between">
+					<a href="/shirts/@item.Id">
+						<div>
+							<h5 class="card-title">@item.Name</h5>
+							<p class="card-text">Price: @price zł</p>
+						</div>
+					</a>
+				</div>
+
+			</div>
+
+		</div>
+	}
+	<h2>Final price: @finalPrice zł</h2>
+}
+<div class="w-25">
+<EditForm Model="newOrder" OnValidSubmit="AddOrder" FormName="orderForm">
+	<div class="form-group">
+		<label for="deliveryMethod">Delivery method:</label>
+		<InputSelect id="deliveryMethod" @bind-Value="newOrder.DeliveryMethod" class="form-control">
+			@foreach (var delivery in Enum.GetValues(typeof(DeliveryMethod)))
+			{
+				<option value="@delivery">@delivery.ToString()</option>
+			}
+		</InputSelect>
+		<ValidationMessage For="@(() => newOrder.DeliveryMethod)" />
+	</div>
+	<div class="form-group">
+		<label for="paymentMethod">Payment method:</label>
+		<InputSelect id="paymentMethod" @bind-Value="newOrder.PaymentMethod" class="form-control">
+			@foreach (var payment in Enum.GetValues(typeof(PaymentMethod)))
+			{
+				<option value="@payment">@payment.ToString()</option>
+			}
+		</InputSelect>
+		<ValidationMessage For="@(() => newOrder.PaymentMethod)" />
+	</div>
+
+    <div class="form-group mt-3">
+        <button type="submit" class="btn btn-primary">Confirm an order</button>
+    </div>
+</EditForm>
+</div>
+@code {
+	private List<Item>? cart;
+	private Order newOrder = new Order();
+	private double finalPrice;
+
+	private ApplicationUser currentUser;
+
+	protected override async Task OnInitializedAsync()
+	{
+		var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+		var User = authState.User;
+		// Get the current authenticated user
+		var user = await UserManager.GetUserAsync(User);
+
+		if (user != null)
+		{
+			currentUser = user;
+
+		}
+
+	}
+
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+
+			var cartIds = await localStorage.GetItemAsync<List<int>>("cart");
+			cart = await dbContext.Items.Where(i => cartIds.Any(c => c == i.Id)).ToListAsync();
+			foreach (var item in cart)
+			{
+				var price = item.Price * item.PriceMultiplier;
+				finalPrice += price;
+			}
+
+			StateHasChanged();
+		}
+	}
+
+
+	private void AddOrder()
+	{
+		var editContext = new EditContext(newOrder);
+
+		// Sprawdź, czy formularz jest poprawny
+		if (editContext.Validate())
+		{
+			// Ustaw datę utworzenia przed dodaniem do bazy danych
+			newOrder.DateCreated = DateTime.UtcNow;
+			newOrder.Items = cart;
+			newOrder.TotalPrice = finalPrice;
+			newOrder.User = currentUser;
+
+
+			// Ustaw opcjonalnie CategoryId na podstawie wybranej kategorii
+			// newItem.CategoryId = selectedCategoryId;
+
+			// Dodaj nowy element do bazy danych
+			dbContext.Orders.Add(newOrder);
+			dbContext.SaveChanges();
+
+			// Opcjonalnie, wyczyść formularz
+			newOrder = new Order();
+		}
+	}
+}

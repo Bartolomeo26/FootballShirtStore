@@ -34,7 +34,7 @@
                         var base64String = Convert.ToBase64String(img.Data);
                         <div class="card home-shirt-card m-1">
                             <a href="@($"/shirts/{items[i].Id}")">
-                                <div class="price">@price zł</div>
+                                    <div class="price">@price.ToString($"F0") zł</div>
                                 
                                 <img src="data:image /png;base64,@base64String" class="card-img-top home-card" alt="@items[i].Name">
                                 
@@ -48,7 +48,7 @@
                         }
                     }
                     </div>
-                <h2 class="mt-3">Recently discounted</h2>
+                <h2 class="mt-3">Discounted shirts</h2>
                 <div class="shirts mb-3">
                     @for (int i = 0; i < max; i++)
                     {
@@ -60,7 +60,7 @@
                             var base64String = Convert.ToBase64String(img.Data);
                             <div class="card home-shirt-card m-1">
                                 <a href="@($"/shirts/{items[i].Id}")">
-                                        <div class="price">@price zł</div>
+                                        <div class="price">@price.ToString($"F0") zł</div>
 
                                     <img src="data:image /png;base64,@base64String" class="card-img-top home-card" alt="@items[i].Name">
 

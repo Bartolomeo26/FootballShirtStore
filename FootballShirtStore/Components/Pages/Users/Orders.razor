@@ -1,0 +1,63 @@
+﻿@page "/users/{id}/orders"
+@inject ApplicationDbContext dbContext
+@inject NavigationManager NavigationManager
+@inject Microsoft.AspNetCore.Identity.UserManager<ApplicationUser> UserManager
+@using FootballShirtStore.Data
+@using FootballShirtStore.Entities
+@using Microsoft.EntityFrameworkCore
+@rendermode InteractiveServer
+
+<PageTitle>Your Orders</PageTitle>
+
+<h3>Your orders</h3>
+@if (orders != null && orders.Any())
+{
+    <div class="d-flex flex-column">
+        <div class="d-flex flex-wrap mt-5">
+
+            @foreach (var order in orders)
+            {
+                <div class="ms-2">
+                    <a href="/orders/@order.Id" class="item-card">
+                        <div class="card d-flex flex-column align-items-start position-relative" style="width: 20rem;">
+                            <div class="card-body">
+                                <p class="card-text fw-bold fs-5 positon-absolute bottom-0">Status: @order.State</p>
+
+
+
+                                <p class="card-text fw-bold fs-5 positon-absolute mt-3 bottom-0">Delivery method: @order.DeliveryMethod</p>
+                                <p class="card-text fw-bold fs-5 positon-absolute bottom-0">Payment method: @order.PaymentMethod</p>
+                                <h5 class="card-title mb-2">Total price: @order.TotalPrice zł</h5>
+                                <small class="card-text text-secondary d-block">Date created: @order.DateCreated</small>
+                                <small class="card-text text-secondary">Order Id: @order.Id</small>
+                            </div>
+                        </div>
+                    </a>
+
+                </div>
+            }
+        </div>
+    </div>
+}
+else
+{
+    <p>No orders found.</p>
+}
+
+
+
+@code {
+    [Parameter]
+    public string id { get; set; }
+
+    private List<Order> orders;
+
+    protected override void OnInitialized()
+    {
+        // Pobierz wszystkie przedmioty z bazy danych
+        orders = dbContext.Orders.Include(o => o.User.Id == id).ToList();
+
+        StateHasChanged();
+    }
+
+}

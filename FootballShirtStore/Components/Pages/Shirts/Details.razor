@@ -1,16 +1,21 @@
 ﻿@page "/shirts/{id}"
 @inject ApplicationDbContext dbContext
 @inject ILocalStorageService localStorage
+@inject NavigationManager navigationManagerLinker
+@inject Microsoft.AspNetCore.Identity.UserManager<ApplicationUser> UserManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
 @using Blazored.LocalStorage
 @using FootballShirtStore.Data
 @using FootballShirtStore.Entities
 @using Microsoft.EntityFrameworkCore
 @rendermode InteractiveServer
 
-<PageTitle>@item.Name</PageTitle>
+
 
     @if (item != null && item.Category != null)
+
 {
+    <PageTitle>@item.Name</PageTitle>
     var img = item.FileData.FirstOrDefault(f => f.Type == FileDataType.Image);
     var base64String = Convert.ToBase64String(img.Data);
     var newPrice = item.Price * item.PriceMultiplier;
@@ -39,18 +44,29 @@
                 @if (newPrice != item.Price)
                 {
                     <h4 class="text-danger">Old Price: @item.Price zł</h4>
-                    <h4 class="text-success">New Price: @newPrice zł</h4>
+                    <h4 class="text-success">New Price: @newPrice.ToString($"F0") zł</h4>
 
                 }
                 else
                 {
                     <h4>Price: @item.Price zł</h4>
                 }
-                <div>
-                    <button class="btn btn-success" @onclick="async () => await addToCart(item)">Add to basket</button>
+                @if (currentUser is not null)
+                {
+                    <div>
+                        <button class="btn btn-success" @onclick="async () => await addToCart(item)">Add to basket</button>
+                    </div>
+                }
+                @if(currentUser is not null && currentUser.IsAdmin)
+                {
+                <div class="form-group">
+                    <label for="PriceMultiplier">Price Multiplier:</label>
+                    <InputNumber id="PriceMultiplier" @bind-Value="newMultiplier" min="0" max="10" step="0.1" class="form-control" />
                 </div>
-                
-                <button class="btn btn-primary" @onclick="UpdatePriceMultiplier">Update Multiplier</button>
+ 
+                <button class="btn btn-primary mt-3" @onclick="UpdatePriceMultiplier">Update Price Multiplier</button>
+                <button class="btn btn-danger mt-5" @onclick="DeleteItem">Delete an item</button>
+                }
             </div>
 
         </div>
@@ -69,26 +85,51 @@ else
     public string id { get; set; }
 
     private Item item;
-    public double PriceMultiplier;
+    private double newMultiplier;
 
-   
+    private ApplicationUser currentUser;
 
-    private async Task UpdatePriceMultiplier()
+    protected override async Task OnInitializedAsync()
     {
-       
-        item.PriceMultiplier = PriceMultiplier;
-        await dbContext.SaveChangesAsync();
-    }
-    protected override void OnInitialized()
-    {
-        // Pobierz przedmiot na podstawie identyfikatora z parametru adresu
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var User = authState.User;
+        // Get the current authenticated user
+        var user = await UserManager.GetUserAsync(User);
+
+        if (user != null)
+        {
+            currentUser = user;
+
+        }
         int itemId;
         if (int.TryParse(id, out itemId))
         {
             item = dbContext.Items.Include(i => i.FileData).Include(i => i.Category).Include(i => i.Category.ParentCategory).FirstOrDefault(i => i.Id == itemId);
-            PriceMultiplier = item.PriceMultiplier;
+            newMultiplier = item?.PriceMultiplier ?? 1;
+
+        }
+
+    }
+
+    private void DeleteItem()
+    {
+
+        dbContext.Items.Remove(item);
+        dbContext.SaveChanges();
+
+        navigationManagerLinker.NavigateTo("/");
+    }
+
+    private async Task UpdatePriceMultiplier()
+    {
+        if (item != null)
+        {
+            item.PriceMultiplier = newMultiplier;
+            dbContext.SaveChanges();
+            // Optionally, you can navigate back to the item details page or another page.
         }
     }
+   
 
     // add to basket
     // probuje pobrac z pamieci przegladarki koszyk, jak koszyk jest null to wtedy tworzy nowa liste, nadpisuje koszyk z dodatkowym przedmiotem
