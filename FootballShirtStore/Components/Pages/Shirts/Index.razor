@@ -1,5 +1,6 @@
 ﻿@page "/shirts"
 @inject ApplicationDbContext dbContext
+@inject NavigationManager NavigationManager
 @using FootballShirtStore.Data
 @using FootballShirtStore.Entities
 @using Microsoft.EntityFrameworkCore
@@ -11,12 +12,32 @@
 
 @if (items != null && items.Any())
 {
-    <div class="d-flex justify-content-around flex-wrap mt-5">
+    <div class="d-flex flex-column">
+        @if (category is not null)
+        {
+            <h2>
+                Shirts displayed for @category.CategoryName
+                
+            </h2>
+        }
+        @if (typeName is not null)
+        {
+            <h2>
+                Shirts displayed for @typeName
+                
+            </h2>
+        }
+   
+    <div class="d-flex justify-content-evenly flex-wrap mt-5">
+        
         @foreach (var item in items)
-           { var img = item.FileData.FirstOrDefault(f => f.Type == FileDataType.Image);
-     
-             var base64String = Convert.ToBase64String(img.Data);
-             
+        {
+            @if ((category is not null && item.Category.CategoryName == category.CategoryName) || (typeName is not null && item.Type.ToString() == typeName))
+            {
+                var img = item.FileData.FirstOrDefault(f => f.Type == FileDataType.Image);
+
+                var base64String = Convert.ToBase64String(img.Data);
+
                 <div>
 
                     <a href="/shirts/@item.Id" class="item-card">
@@ -33,9 +54,10 @@
                     </a>
 
                 </div>
-            
+            }
             
         }
+    </div>
     </div>
 }
 else
@@ -45,10 +67,22 @@ else
 
 @code {
     private List<Item> items;
-
+    private string categoryName;
+    private Category category;
+    
+    private string typeName;
     protected override void OnInitialized()
     {
         // Pobierz wszystkie przedmioty z bazy danych
         items = dbContext.Items.Include(i => i.FileData).ToList();
+       
+        categoryName = NavigationManager.Uri.Contains("?category=") ?
+           NavigationManager.Uri.Split("?category=")[1] : null;
+        typeName = NavigationManager.Uri.Contains("?type=") ?
+          NavigationManager.Uri.Split("?type=")[1] : null;
+        category = dbContext.Categories.FirstOrDefault(i =>  i.CategoryName.Replace(" ", "") == categoryName);
+        
+       
+        StateHasChanged();
     }
 }

@@ -1,5 +1,7 @@
 ﻿@page "/shirts/{id}"
 @inject ApplicationDbContext dbContext
+@inject ILocalStorageService localStorage
+@using Blazored.LocalStorage
 @using FootballShirtStore.Data
 @using FootballShirtStore.Entities
 @using Microsoft.EntityFrameworkCore
@@ -7,41 +9,52 @@
 
 <PageTitle>@item.Name</PageTitle>
 
-@if (item != null && item.Category !=null)
+    @if (item != null && item.Category != null)
 {
     var img = item.FileData.FirstOrDefault(f => f.Type == FileDataType.Image);
     var base64String = Convert.ToBase64String(img.Data);
-   
+    var newPrice = item.Price * item.PriceMultiplier;
 
-        <div class="d-flex justify-content-center w-100 mt-5">
-            <div class="d-flex flex-row justify-content-evenly shirt-details-card align-items-center bg-light rounded-3 p-3 w-50">
-                @if (item.FileData.Any())
-        {
+
+    <div class="d-flex justify-content-center w-100 mt-5">
+        <div class="d-flex flex-row justify-content-evenly shirt-details-card align-items-center bg-light rounded-3 p-3 w-50">
+            @if (item.FileData.Any())
+            {
                 <div class="d-flex flex-wrap ms-3 images">
-                @foreach (var fileData in item.FileData)
-                {
-                    <img src="@($"data:image/png;base64,{Convert.ToBase64String(fileData.Data)}")" class="img-fluid rounded-5 shirt-details-image" alt="Image" style="max-width: 200px; max-height: 200px; margin: 10px;" />
-                }
-            </div>
-        }
+                    @foreach (var fileData in item.FileData)
+                    {
+                        <img src="@($"data:image/png;base64,{Convert.ToBase64String(fileData.Data)}")" class="img-fluid rounded-5 shirt-details-image" alt="Image" style="max-width: 200px; max-height: 200px; margin: 10px;" />
+                    }
+                </div>
+            }
             <div class="d-flex flex-column info justify-content-start align-items-start h-100 border-2 border-secondary ps-5 border-start ms-5">
                 <div class="d-flex flex-row justify-content-between w-100">
-                <p>For @item.Type</p>
-                <p>@item.Category.ParentCategory.CategoryName: @item.Category.CategoryName</p>
+                    <p>For @item.Type</p>
+                    <p>@item.Category.ParentCategory.CategoryName: @item.Category.CategoryName</p>
                 </div>
                 <h3 class="mt-2">@item.Name</h3>
                 <p class="fs-6">@item.Description</p>
                 <p>Color: @item.Color</p>
-                <h4>Price: @item.Price zł</h4>
+
+                @if (newPrice != item.Price)
+                {
+                    <h4 class="text-danger">Old Price: @item.Price zł</h4>
+                    <h4 class="text-success">New Price: @newPrice zł</h4>
+
+                }
+                else
+                {
+                    <h4>Price: @item.Price zł</h4>
+                }
                 <div>
-                    <button class="btn btn-success">Add to basket</button>
+                    <button class="btn btn-success" @onclick="async () => await addToCart(item)">Add to basket</button>
                 </div>
             </div>
 
-            </div>
         </div>
-        
-  
+    </div>
+
+
 }
 else
 {
@@ -66,6 +79,23 @@ else
             item = dbContext.Items.Include(i => i.FileData).Include(i => i.Category).Include(i => i.Category.ParentCategory).FirstOrDefault(i => i.Id == itemId);
         }
     }
-   
+
+    // add to basket
+    // probuje pobrac z pamieci przegladarki koszyk, jak koszyk jest null to wtedy tworzy nowa liste, nadpisuje koszyk z dodatkowym przedmiotem
+    private async Task addToCart(Item itemToAdd)
+    {
+        // naprawic
+        List<int> items = new List<int>();
+        items = await localStorage.GetItemAsync<List<int>>("cart");
+
+        if (items is null)
+        {
+            items = new List<int>();
+        }
+
+        items.Add(itemToAdd.Id);
+        await localStorage.SetItemAsync<List<int>>("cart", items);
+
+    }
 
 }

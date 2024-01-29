@@ -15,14 +15,24 @@
 
 @if (searchResults != null)
 {
+    <div class="search-results">
     <h4>Search Results:</h4>
-    <ul>
+  
         @foreach (var result in searchResults)
         {
             <a href="/shirts/@result.Id">
-            <li>@result.Name - @result.Description</li></a>
+               
+                    <div class="card w-50 mb-3 ms-0">
+                        <div class="card-body">
+                            <h5 class="card-title">@result.Name</h5>
+                            <p class="card-text">@result.Description</p>
+                            
+                        </div>
+                    </div></a>
         }
-    </ul>
+    
+    </div>
+    
 }
 else
 {

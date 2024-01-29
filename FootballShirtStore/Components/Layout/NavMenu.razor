@@ -3,7 +3,7 @@
 @using Microsoft.EntityFrameworkCore
 @using FootballShirtStore.Data
 @inject ApplicationDbContext dbContext
-@inject NavigationManager NavigationManager
+@inject NavigationManager navigationManagerLinker
 @rendermode InteractiveServer
 
     <nav class="navbar navbar-dark navbar-expand-sm bg-primary border-bottom p-0" data-bs-theme="dark">
@@ -88,10 +88,21 @@
                         Gender
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#">Men</a></li>
-                        <li><a class="dropdown-item" href="#">Women</a></li>
-          
-                        <li><a class="dropdown-item" href="#">Children</a></li>
+                        <li class="nav-item">
+                            <NavLink class="nav-link" @onclick='()=>navigationManagerLinker.NavigateTo("/shirts?type=Men", forceLoad: true)'>
+                                Men
+                            </NavLink>
+                        </li>
+                        <li class="nav-item">
+                            <NavLink class="nav-link" @onclick='()=>navigationManagerLinker.NavigateTo("/shirts?type=Women", forceLoad: true)'>
+                                Women
+                            </NavLink>
+                        </li>
+                        <li class="nav-item">
+                            <NavLink class="nav-link" @onclick='()=>navigationManagerLinker.NavigateTo("/shirts?type=Children", forceLoad: true)'>
+                                Children
+                            </NavLink>
+                        </li>
                     </ul>
                 </li>
                 <li class="nav-item dropdown">
@@ -99,12 +110,32 @@
                         Clubs
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#">FC Barcelona</a></li>
-                        <li><a class="dropdown-item" href="#">Real Madrid</a></li>
- 
-                        <li><a class="dropdown-item" href="#">Manchester United</a></li>
-                        <li><a class="dropdown-item" href="#">Paris Saint Germain</a></li>
-                        <li><a class="dropdown-item" href="#">Bayern Munich</a></li>
+                        <li class="nav-item">
+                            <NavLink class="nav-link" @onclick='()=>navigationManagerLinker.NavigateTo("/shirts?category=FCBarcelona", forceLoad: true)'>
+                                FC Barcelona
+                            </NavLink>
+                        </li>
+                        <li class="nav-item">
+                            <NavLink class="nav-link" @onclick='()=>navigationManagerLinker.NavigateTo("/shirts?category=RealMadrid", forceLoad: true)'>
+                                Real Madrid
+                            </NavLink>
+                        </li>
+                        <li class="nav-item">
+                            <NavLink class="nav-link" @onclick='()=>navigationManagerLinker.NavigateTo("/shirts?category=ManchesterUnited", forceLoad: true)'>
+                                Manchester United
+                            </NavLink>
+                        </li>
+                        <li class="nav-item">
+                            <NavLink class="nav-link" @onclick='()=>navigationManagerLinker.NavigateTo("/shirts?category=ParisSaintGermain", forceLoad: true)'>
+                                Paris Saint Germain
+                            </NavLink>
+                        </li>
+                        <li class="nav-item">
+                            <NavLink class="nav-link" @onclick='()=>navigationManagerLinker.NavigateTo("/shirts?category=BayernMunich", forceLoad: true)'>
+                                Bayern Munich
+                            </NavLink>
+                        </li>
+             
                     </ul>
                 </li>
                
@@ -113,22 +144,46 @@
                         National Teams
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#">Spain</a></li>
-                        <li><a class="dropdown-item" href="#">Germany</a></li>
-                        <li><a class="dropdown-item" href="#">Italy</a></li>
-                        <li><a class="dropdown-item" href="#">France</a></li>
-                        <li><a class="dropdown-item" href="#">Brazil</a></li>
+                        <li class="nav-item">
+                            <NavLink class="nav-link" @onclick='()=>navigationManagerLinker.NavigateTo("/shirts?category=Spain", forceLoad: true)'>
+                                Spain
+                            </NavLink>
+                        </li>
+                        <li class="nav-item">
+                            <NavLink class="nav-link" @onclick='()=>navigationManagerLinker.NavigateTo("/shirts?category=Germany", forceLoad: true)'>
+                                Germany
+                            </NavLink>
+                        </li>
+                        <li class="nav-item">
+                            <NavLink class="nav-link" @onclick='()=>navigationManagerLinker.NavigateTo("/shirts?category=Italy", forceLoad: true)'>
+                                Italy
+                            </NavLink>
+                        </li>
+                        <li class="nav-item">
+                            <NavLink class="nav-link" @onclick='()=>navigationManagerLinker.NavigateTo("/shirts?category=France", forceLoad: true)'>
+                                France
+                            </NavLink>
+                        </li>
+                        <li class="nav-item">
+                            <NavLink class="nav-link" @onclick='()=>navigationManagerLinker.NavigateTo("/shirts?category=Brazil", forceLoad: true)'>
+                                Brazil
+                            </NavLink>
+                        </li>
+
                     </ul>
+                    
                 </li>
                 
                 </ul>
-
+            <a class="nav-link" asp-area="" href="/shoppingCart" asp-page="/shoppingCart">
+                Shopping cart
+            </a>
                  <a class="nav-link" asp-area="" href="/contact/index" asp-page="/contact/index">
                         Contact us
                  </a>
 
-                <form class="d-flex" role="search">
-                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                <form class="d-flex" action="/search">
+                    
                     <button class="btn btn-outline-success" type="submit">Search</button>
                 </form>
             </div>
@@ -138,24 +193,25 @@
 @code {
 
     private List<Category> categories = new List<Category>();
+    
 
     private string? currentUrl;
 
     protected override void OnInitialized()
     {
-        currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
-        NavigationManager.LocationChanged += OnLocationChanged;
+        currentUrl = navigationManagerLinker.ToBaseRelativePath(navigationManagerLinker.Uri);
+        navigationManagerLinker.LocationChanged += OnLocationChanged;
         categories = dbContext.Categories.ToList();
     }
 
     private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
     {
-        currentUrl = NavigationManager.ToBaseRelativePath(e.Location);
+        currentUrl = navigationManagerLinker.ToBaseRelativePath(e.Location);
         StateHasChanged();
     }
 
     public void Dispose()
     {
-        NavigationManager.LocationChanged -= OnLocationChanged;
+        navigationManagerLinker.LocationChanged -= OnLocationChanged;
     }
 }

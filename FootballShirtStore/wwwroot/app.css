@@ -68,6 +68,7 @@ section {
 .nav-item {
     padding: 0.6em;
     font-size: 1.1rem;
+    cursor: pointer;
 }
 
     .nav-item ul {
@@ -143,4 +144,10 @@ a.item-card{
 
     width:280px;
     height:310px;
+}
+
+.search-results a{
+    text-decoration:none;
+    color:black;
+
 }
