@@ -35,13 +35,13 @@
                 <p>Color: @item.Color</p>
                 <h4>Price: @item.Price zł</h4>
                 <div>
-                    <button class="btn btn-success" @onclick = "async() => await addToCart(item)">Add to basket</button>
+                    <button class="btn btn-success" @onclick = "async () => await addToCart(item)">Add to basket</button>
                 </div>
             </div>
 
             </div>
+            </div>
         </div>
-        
   
 }
 else
@@ -72,16 +72,16 @@ else
     // probuje pobrac z pamieci przegladarki koszyk, jak koszyk jest null to wtedy tworzy nowa liste, nadpisuje koszyk z dodatkowym przedmiotem
     private async Task addToCart( Item itemToAdd) {
         // naprawic 
-        List<Item> items = new List<Item>();
-         items = await localStorage.GetItemAsync<List<Item>>("cart");
+        List<int> items = new List<int>();
+         items = await localStorage.GetItemAsync<List<int>>("cart");
 
             if (items is null)
             {
-                items = new List<Item>();
+                items = new List<int>();
             }
 
-            items.Add(itemToAdd);
-            await localStorage.SetItemAsync<List<Item>>("cart", items);
+            items.Add(itemToAdd.Id);
+            await localStorage.SetItemAsync<List<int>>("cart", items);
        
     }   
     

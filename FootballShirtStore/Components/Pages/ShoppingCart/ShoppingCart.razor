@@ -1,7 +1,11 @@
 ﻿@page "/shoppingCart/shoppingCart"
+@using FootballShirtStore.Data
 @using FootballShirtStore.Entities
 @using Blazored.LocalStorage
+@using Microsoft.EntityFrameworkCore
 @inject ILocalStorageService localStorage
+@inject ApplicationDbContext context
+@rendermode InteractiveServer
 
 <h3>ShoppingCart</h3>
 
@@ -11,12 +15,15 @@
 	}
 }
 @code {
-	
+
 	private List<Item>? cart;
 
 	protected override async Task OnAfterRenderAsync(bool firstRender) {
 		if (firstRender) {
-			cart = await localStorage.GetItemAsync<List<Item>>("cart");
+
+			var cartIds = await localStorage.GetItemAsync<List<int>>("cart");
+			cart = await context.Items.Where(i => cartIds.Any(c => c == i.Id)).ToListAsync();
+			StateHasChanged();
 		}
 	}
 
