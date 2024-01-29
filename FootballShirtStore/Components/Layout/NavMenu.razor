@@ -1,10 +1,21 @@
 ﻿@using System.Security.Claims
+@using FootballShirtStore.Entities
+@using Microsoft.EntityFrameworkCore
+@using FootballShirtStore.Data
+@inject ApplicationDbContext dbContext
 @inject NavigationManager NavigationManager
+@rendermode InteractiveServer
 
     <nav class="navbar navbar-dark navbar-expand-sm bg-primary border-bottom p-0" data-bs-theme="dark">
         <div class="container justify-content-end align-items-center">
             <div class="d-sm-inline-flex">
                 <ul class="navbar-nav flex-grow-1 d-flex align-items-center">
+                <li class="nav-item">
+                    <a class="nav-link" asp-area="" href="/shirts/new" asp-page="/shirts/new">
+                        Add a shirt
+                    </a>
+                </li>
+      
 
                     <AuthorizeView>
                         <NotAuthorized>
@@ -26,6 +37,11 @@
                     </NotAuthorized>
 
                     <Authorized>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" href="/categories/new" asp-page="/categories/new">
+                                Create Category
+                            </a>
+                        </li>
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" href="/Account/Manage" asp-page="/">
                                 <span class="bi bi-person-fill-nav-menu" aria-hidden="true"></span> @context.User.Identity?.Name
@@ -91,33 +107,20 @@
                         <li><a class="dropdown-item" href="#">Bayern Munich</a></li>
                     </ul>
                 </li>
+               
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Times
+                        National Teams
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#">1990-2000</a></li>
-                        <li><a class="dropdown-item" href="#">2001-2010</a></li>
-                       
-                        <li><a class="dropdown-item" href="#">2011-2024</a></li>
+                        <li><a class="dropdown-item" href="#">Spain</a></li>
+                        <li><a class="dropdown-item" href="#">Germany</a></li>
+                        <li><a class="dropdown-item" href="#">Italy</a></li>
+                        <li><a class="dropdown-item" href="#">France</a></li>
+                        <li><a class="dropdown-item" href="#">Brazil</a></li>
                     </ul>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" asp-area="" href="/shirts/new" asp-page="/shirts/new">
-                        Add a shirt
-                    </a>
-                </li>
-                <AuthorizeView>
-                    <Authorized>
-                        
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" href="/categories/new" asp-page="/categories/new">
-                                Create Category
-                            </a>
-                        </li>
-
-                    </Authorized>
-                </AuthorizeView>
+                
                 </ul>
 
                 <a class="nav-link" asp-area="" href="/shoppingCart/shoppingCart" asp-page="/shoppingCart/shoppingCart">
@@ -137,7 +140,8 @@
     </nav>
 
 @code {
- 
+
+    private List<Category> categories = new List<Category>();
 
     private string? currentUrl;
 
@@ -145,6 +149,7 @@
     {
         currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
         NavigationManager.LocationChanged += OnLocationChanged;
+        categories = dbContext.Categories.ToList();
     }
 
     private void OnLocationChanged(object? sender, LocationChangedEventArgs e)

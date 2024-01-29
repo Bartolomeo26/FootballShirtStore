@@ -1,0 +1,62 @@
+﻿@page "/search"
+@inject ApplicationDbContext dbContext
+@using FootballShirtStore.Data
+@using FootballShirtStore.Entities
+@using Microsoft.EntityFrameworkCore
+@rendermode InteractiveServer
+
+
+<form @onsubmit="SearchProducts">
+    <div class="input-group mb-3">
+        <input type="text" class="form-control" placeholder="Enter product name" @bind="searchQuery" />
+        <button type="button" class="btn btn-primary" @onclick="SearchProducts">Search</button>
+    </div>
+</form>
+
+@if (searchResults != null)
+{
+    <h4>Search Results:</h4>
+    <ul>
+        @foreach (var result in searchResults)
+        {
+            <a href="/shirts/@result.Id">
+            <li>@result.Name - @result.Description</li></a>
+        }
+    </ul>
+}
+else
+{
+    <p>No results found.</p>
+}
+
+@code {
+    private string searchQuery;
+    private List<Item> searchResults;
+
+   
+    private List<Item> items;
+    protected override void OnInitialized()
+    {
+        
+        items = dbContext.Items.ToList();
+    }
+
+    private void SearchProducts()
+    {
+        // Perform search logic based on the entered query
+        if (!string.IsNullOrEmpty(searchQuery))
+        {
+            searchResults = items
+                .Where(item => item.Name.Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ||
+                    item.Description.Contains(searchQuery, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+        else
+        {
+            // Clear results if the search query is empty
+            searchResults = null;
+        }
+    }
+
+ 
+}
