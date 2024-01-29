@@ -183,7 +183,7 @@
                 </li>
                 
                 </ul>
-            <a class="nav-link" asp-area="" href="/users/@currentUser.Id/orders" asp-page="/contact/index">
+            <a class="nav-link" asp-area="" href="/users/orders" asp-page="/contact/index">
                 Your orders
             </a>
                  <a class="nav-link" asp-area="" href="/contact/index" asp-page="/contact/index">
@@ -202,22 +202,7 @@
 
     private List<Category> categories = new List<Category>();
     
-    private ApplicationUser currentUser;
-
-    protected override async Task OnInitializedAsync()
-    {
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        var User = authState.User;
-        // Get the current authenticated user
-        var user = await UserManager.GetUserAsync(User);
-
-        if (user != null)
-        {
-            currentUser = user;
-
-        }
-
-    }
+   
 
     private string? currentUrl;
 

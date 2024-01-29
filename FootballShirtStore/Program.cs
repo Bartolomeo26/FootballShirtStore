@@ -5,7 +5,6 @@ using FootballShirtStore.Data;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Blazored.LocalStorage;
 using PdfSharp.Charting;
 
 var builder = WebApplication.CreateBuilder(args);
