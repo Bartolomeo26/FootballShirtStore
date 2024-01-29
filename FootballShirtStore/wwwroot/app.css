@@ -51,9 +51,9 @@ section {
         color: inherit;
     }
 
-        .card > a:hover {
-            border: 0.1rem solid black;
-        }
+.home-shirt-card > a:hover {
+    border: 0.05rem solid black;
+}
 
 .price {
     position: absolute;
@@ -146,7 +146,7 @@ a.item-card{
     height:310px;
 }
 
-.search-results a{
+.mini-card a{
     text-decoration:none;
     color:black;
 

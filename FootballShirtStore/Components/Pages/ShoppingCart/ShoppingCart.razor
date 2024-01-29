@@ -11,10 +11,41 @@
 
 @if (cart is not null)
 {
+	double finalPrice = 0;
 	foreach (var item in cart)
 	{
-		<h1>@item.Name</h1>
+		var price = item.Price * item.PriceMultiplier;
+		finalPrice += price;
+		<div class="mini-card">
+		
+
+			<div class="card w-25 mb-3 ms-0">
+				
+				<div class="card-body d-flex justify-content-between">
+					<a href="/shirts/@item.Id">
+					<div>
+					<h5 class="card-title">@item.Name</h5>
+					<p class="card-text">Price: @price zł</p>
+						</div>
+					</a>
+						<div class="mt-5">
+							<button class="btn btn-danger btn-sm" @onclick="async () => await removeFromCart(item)">
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+									<path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
+									<path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
+								</svg>
+							</button>
+						</div>
+				</div>
+				
+			</div>
+		
+		</div>
 	}
+	<h2>Final price: @finalPrice zł</h2>
+	<div class="mt-3">
+		<button class="btn btn-success">Make an order</button>
+	</div>
 }
 @code {
 
@@ -29,6 +60,24 @@
 			cart = await context.Items.Where(i => cartIds.Any(c => c == i.Id)).ToListAsync();
 			StateHasChanged();
 		}
+	}
+
+	private async Task removeFromCart(Item itemToRemove)
+	{
+		// naprawic
+		List<int> items = new List<int>();
+		items = await localStorage.GetItemAsync<List<int>>("cart");
+
+		if (items is null)
+		{
+			items = new List<int>();
+		}
+
+		items.Remove(itemToRemove.Id);
+		await localStorage.SetItemAsync<List<int>>("cart", items);
+		cart.Remove(itemToRemove);
+		StateHasChanged();
+
 	}
 
 	// dodac skladanie ordera 

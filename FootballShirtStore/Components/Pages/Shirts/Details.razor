@@ -49,6 +49,8 @@
                 <div>
                     <button class="btn btn-success" @onclick="async () => await addToCart(item)">Add to basket</button>
                 </div>
+                
+                <button class="btn btn-primary" @onclick="UpdatePriceMultiplier">Update Multiplier</button>
             </div>
 
         </div>
@@ -67,9 +69,16 @@ else
     public string id { get; set; }
 
     private Item item;
+    public double PriceMultiplier;
 
+   
 
-
+    private async Task UpdatePriceMultiplier()
+    {
+       
+        item.PriceMultiplier = PriceMultiplier;
+        await dbContext.SaveChangesAsync();
+    }
     protected override void OnInitialized()
     {
         // Pobierz przedmiot na podstawie identyfikatora z parametru adresu
@@ -77,6 +86,7 @@ else
         if (int.TryParse(id, out itemId))
         {
             item = dbContext.Items.Include(i => i.FileData).Include(i => i.Category).Include(i => i.Category.ParentCategory).FirstOrDefault(i => i.Id == itemId);
+            PriceMultiplier = item.PriceMultiplier;
         }
     }
 

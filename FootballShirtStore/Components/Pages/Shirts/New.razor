@@ -25,12 +25,7 @@
                 <ValidationMessage For="@(() => newItem.Price)" />
             </div>
 
-            <div class="form-group">
-                <label for="PriceMultiplier">Price Multiplier:</label>
-                <InputNumber id="PriceMultiplier" @bind-Value="newItem.PriceMultiplier" class="form-control" />
-                <ValidationMessage For="@(() => newItem.PriceMultiplier)" />
-            </div>
-
+            
             <div class="form-group">
                 <label for="Color">Color:</label>
                 <InputSelect id="Color" @bind-Value="newItem.Color" class="form-control">

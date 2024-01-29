@@ -27,13 +27,14 @@
                 <div class="shirts mb-3">
                     @for (int i = 0; i < max; i++)
                     {
+                        var price = items[i].Price * items[i].PriceMultiplier;
                         var img = items[i].FileData.FirstOrDefault(f => f.Type == FileDataType.Image);
                         @if (img is not null)
                         {
                         var base64String = Convert.ToBase64String(img.Data);
-                        <div class="card m-1">
+                        <div class="card home-shirt-card m-1">
                             <a href="@($"/shirts/{items[i].Id}")">
-                                <div class="price">@items[i].Price zł</div>
+                                <div class="price">@price zł</div>
                                 
                                 <img src="data:image /png;base64,@base64String" class="card-img-top home-card" alt="@items[i].Name">
                                 
@@ -47,51 +48,36 @@
                         }
                     }
                     </div>
-                    <h2 class="mt-3">Recently discounted</h2>
-                    <div class="shirts mb-3">
+                <h2 class="mt-3">Recently discounted</h2>
+                <div class="shirts mb-3">
+                    @for (int i = 0; i < max; i++)
+                    {
+                        @if (items[i].PriceMultiplier<1){
+                        var img = items[i].FileData.FirstOrDefault(f => f.Type == FileDataType.Image);
+                        var price = items[i].Price * items[i].PriceMultiplier;
+                        @if (img is not null)
+                        {
+                            var base64String = Convert.ToBase64String(img.Data);
+                            <div class="card home-shirt-card m-1">
+                                <a href="@($"/shirts/{items[i].Id}")">
+                                        <div class="price">@price zł</div>
 
-                        <div class="card m-1">
-                            <a href="/shirts/1">
-                                <div class="price">399zł</div>
-                                <img src="https://assets.adidas.com/images/h_840,f_auto,q_auto,fl_lossy,c_fill,g_auto/25c631e6cefb4c46abbb0d8f2982b3ff_9366/Inter_Miami_CF_23-24_Away_Authentic_Jersey_Messi_10_Rozowy_JE9705_23_hover_model.jpg" class="card-img-top" alt="...">
-                                <div class="card-body">
-                                    <h5 class="card-title">INTER MIAMI CF 23/24 AWAY JERSEY</h5>
-                                    <p class="card-text p-1">Koszulka męska</p>
-                                </div>
-                            </a>
-                        </div>
+                                    <img src="data:image /png;base64,@base64String" class="card-img-top home-card" alt="@items[i].Name">
 
-                        <div class="card m-1">
-                            <a href="/shirts/id">
-                                <div class="price">399zł</div>
-                                <img src="https://assets.adidas.com/images/h_840,f_auto,q_auto,fl_lossy,c_fill,g_auto/25c631e6cefb4c46abbb0d8f2982b3ff_9366/Inter_Miami_CF_23-24_Away_Authentic_Jersey_Messi_10_Rozowy_JE9705_23_hover_model.jpg" class="card-img-top" alt="...">
-                                <div class="card-body">
-                                    <h5 class="card-title">INTER MIAMI CF 23/24 AWAY JERSEY</h5>
-                                    <p class="card-text p-1">Koszulka męska</p>
-                                </div>
-                            </a>
-                        </div>
-                        <div class="card m-1">
-                            <a href="/shirts/id">
-                                <div class="price">399zł</div>
-                                <img src="https://assets.adidas.com/images/h_840,f_auto,q_auto,fl_lossy,c_fill,g_auto/25c631e6cefb4c46abbb0d8f2982b3ff_9366/Inter_Miami_CF_23-24_Away_Authentic_Jersey_Messi_10_Rozowy_JE9705_23_hover_model.jpg" class="card-img-top" alt="...">
-                                <div class="card-body">
-                                    <h5 class="card-title">INTER MIAMI CF 23/24 AWAY JERSEY</h5>
-                                    <p class="card-text p-1">Koszulka męska</p>
-                                </div>
-                            </a>
-                        </div>
-                        <div class="card m-1">
-                            <a href="/shirts/id">
-                                <div class="price">399zł</div>
-                                <img src="https://assets.adidas.com/images/h_840,f_auto,q_auto,fl_lossy,c_fill,g_auto/25c631e6cefb4c46abbb0d8f2982b3ff_9366/Inter_Miami_CF_23-24_Away_Authentic_Jersey_Messi_10_Rozowy_JE9705_23_hover_model.jpg" class="card-img-top" alt="...">
-                                <div class="card-body">
-                                    <h5 class="card-title">INTER MIAMI CF 23/24 AWAY JERSEY</h5>
-                                    <p class="card-text p-1">Koszulka męska</p>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
+                                    <div class="card-body">
+                                        <h5 class="card-title">@items[i].Name</h5>
+                                            <p class="card-text p-1">For @items[i].Type</p>
+                                            <p class="card-text text-danger p-1 fs-4 mb-0"><del>@items[i].Price zł</del></p>
+                                            <p class="card-text text-success p-1 fs-4 mt-0">@price zł</p>
+                                            
+
+                                    </div>
+                                </a>
+                            </div>
+                        }
+                        }
+                    }
+                </div>
                
                 @if (visitCounter is not null)
                 {
