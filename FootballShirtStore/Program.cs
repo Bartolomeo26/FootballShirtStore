@@ -1,3 +1,4 @@
+using Blazored.LocalStorage;
 using FootballShirtStore.Components;
 using FootballShirtStore.Components.Account;
 using FootballShirtStore.Data;
@@ -10,7 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
-
+builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityUserAccessor>();
 builder.Services.AddScoped<IdentityRedirectManager>();

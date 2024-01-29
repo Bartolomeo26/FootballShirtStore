@@ -1,0 +1,25 @@
+﻿@page "/shoppingCart/shoppingCart"
+@using FootballShirtStore.Entities
+@using Blazored.LocalStorage
+@inject ILocalStorageService localStorage
+
+<h3>ShoppingCart</h3>
+
+@if(cart is not null) {
+	foreach(var item in cart) {
+		<h1>@item.Name</h1>
+	}
+}
+@code {
+	
+	private List<Item>? cart;
+
+	protected override async Task OnAfterRenderAsync(bool firstRender) {
+		if (firstRender) {
+			cart = await localStorage.GetItemAsync<List<Item>>("cart");
+		}
+	}
+
+	// dodac skladanie ordera 
+}
+
