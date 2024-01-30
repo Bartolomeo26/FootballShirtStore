@@ -4,6 +4,10 @@
 @using FootballShirtStore.Data
 @using FootballShirtStore.Entities
 @using Microsoft.EntityFrameworkCore
+@using QuestPDF.Previewer;
+@using QuestPDF.Helpers;
+@using QuestPDF.Fluent;
+@using QuestPDF.Infrastructure;
 @rendermode InteractiveServer
 
 <PageTitle>Shirts</PageTitle>
@@ -36,8 +40,8 @@
                 var img = item.FileData.FirstOrDefault(f => f.Type == FileDataType.Image);
 
                 var base64String = Convert.ToBase64String(img.Data);
-
-                <div>
+                    var newPrice = item.Price * item.PriceMultiplier;
+                    <div>
 
                     <a href="/shirts/@item.Id" class="item-card">
                         <div class="card d-flex flex-column align-items-start position-relative" style="width: 18rem; height: 25rem;">
@@ -47,7 +51,18 @@
                                 <small class="card-text text-secondary">For @item.Type</small>
                                 <h5 class="card-title">@item.Name</h5>
                                 <p class="card-text">@item.Description</p>
-                            <p class="card-text fw-bold fs-5 positon-absolute bottom-0">Price: @item.Price</p>
+                                <div class="d-flex justify-content-center flex-column align-items-center">
+                                    @if (newPrice != item.Price)
+                                    {
+                                            <p class="card-text  fw-bold fs-6 mb-0 positon-absolute text-danger bottom-0"><del>Old Price: @item.Price zł</del></p>
+                                        <p class="card-text fw-bold fs-6 mb-0 positon-absolute text-success bottom-0">New Price: @newPrice.ToString($"F0") zł</p>
+
+                                    }
+                                    else
+                                    {
+                                        <p class="card-text fw-bold fs-5 positon-absolute bottom-0">Price: @item.Price zł</p>
+                                    }
+                                    </div>
                             </div>
                         </div>
                     </a>
@@ -58,6 +73,7 @@
         }
     </div>
     </div>
+    <button class="btn btn-primary btn-sm" @onclick="async () => await GeneratePdfForCategoryAsync()">Generate PDF</button>
 }
 else
 {
@@ -68,20 +84,89 @@ else
     private List<Item> items;
     private string categoryName;
     private Category category;
-    
+    private List<Item> categoryItems;
+    private List<Item> test;
+
     private string typeName;
     protected override void OnInitialized()
     {
         // Pobierz wszystkie przedmioty z bazy danych
         items = dbContext.Items.Include(i => i.FileData).ToList();
-       
+
         categoryName = NavigationManager.Uri.Contains("?category=") ?
            NavigationManager.Uri.Split("?category=")[1] : null;
         typeName = NavigationManager.Uri.Contains("?type=") ?
           NavigationManager.Uri.Split("?type=")[1] : null;
         category = dbContext.Categories.FirstOrDefault(i =>  i.CategoryName.Replace(" ", "") == categoryName);
-        
-       
+        test = dbContext.Items
+    .Where(item => dbContext.Categories.Any(category => category.Id == item.CategoryId))
+    .ToList();
+        Console.WriteLine(test[0].Name);
+
+
         StateHasChanged();
+    }
+    public async Task GeneratePdfForCategoryAsync()
+    {
+        QuestPDF.Settings.License = LicenseType.Community;
+        categoryItems = dbContext.Items
+    .Where(item => item.CategoryId == category.Id)
+    .ToList();
+
+
+        Document.Create(container =>
+        {
+            container.Page(page =>
+            {
+                page.Size(PageSizes.A4);
+                page.Margin(2, Unit.Centimetre);
+                page.PageColor(Colors.White);
+                page.DefaultTextStyle(x => x.FontSize(20));
+
+                page.Header().AlignCenter()
+                    .Text($"{category.CategoryName} Price List")
+                    .Bold().FontSize(30).FontColor(Colors.Black);
+
+                page.Content()
+                    .PaddingVertical(1, Unit.Centimetre)
+                    .Column(x =>
+                    {
+                        x.Spacing(20);
+                        foreach (var categoryItem in categoryItems)
+                        {
+                            x.Item().ShowEntire().Row(y =>
+                            {
+
+                                y.RelativeItem().Text(t =>
+                                {
+                                    t.Line($"{categoryItem.Name} - ${categoryItem.Price:F2}").FontSize(16).FontColor(Colors.Black);
+                                    t.Span(categoryItem.Description).FontSize(12).FontColor(Colors.Black);
+
+                                });
+
+
+                            });
+                        }
+
+                    });
+
+                page.Footer()
+                    .AlignCenter()
+                    .Text(x =>
+                    {
+                        x.Span("Page ");
+                        x.CurrentPageNumber();
+                    });
+            });
+        })
+        .GeneratePdf($"FootballShirtStore_{category.CategoryName}_Pricing.pdf");
+        byte[] pdfBytes = await File.ReadAllBytesAsync($"FootballShirtStore_{category.CategoryName}_Pricing.pdf");
+        File.Delete($"FootballShirtStore_{category.CategoryName}_Pricing.pdf");
+        
+        string folderPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+         
+
+        string filePath = Path.Combine(Path.Combine(folderPath, "twojakateg.pdf"));
+        File.WriteAllBytes(filePath, pdfBytes);
     }
 }

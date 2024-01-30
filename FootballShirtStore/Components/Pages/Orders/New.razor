@@ -109,7 +109,7 @@
 	}
 
 
-	private void AddOrder()
+	private async void AddOrder()
 	{
 		var editContext = new EditContext(newOrder);
 
@@ -129,9 +129,10 @@
 			// Dodaj nowy element do bazy danych
 			dbContext.Orders.Add(newOrder);
 			dbContext.SaveChanges();
-
+			
 			// Opcjonalnie, wyczyść formularz
 			newOrder = new Order();
+			await localStorage.RemoveItemAsync("cart");
 		}
 	}
 }

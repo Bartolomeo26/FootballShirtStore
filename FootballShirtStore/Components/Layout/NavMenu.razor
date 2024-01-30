@@ -40,16 +40,20 @@
                                 Add a shirt
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" href="/orders" asp-page="/orders">
-                                Users orders
-                            </a>
-                        </li>
+                        @if (context.User.Identity.Name.EndsWith("admin.com"))
+                        {
+                            <li class="nav-item">
+                                <NavLink class="nav-link" @onclick='()=>navigationManagerLinker.NavigateTo("/orders", forceLoad: true)'>
+                                    Users orders
+                                </NavLink>
+                            </li>
+                        
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" href="/categories/new" asp-page="/categories/new">
                                 Create Category
                             </a>
                         </li>
+                        }
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" href="/Account/Manage" asp-page="/">
                                 <span class="bi bi-person-fill-nav-menu" aria-hidden="true"></span> @context.User.Identity?.Name
@@ -183,12 +187,13 @@
                 </li>
                 
                 </ul>
-            <a class="nav-link" asp-area="" href="/users/orders" asp-page="/contact/index">
-                Your orders
+            <NavLink class="nav-link pe-auto" @onclick='()=>navigationManagerLinker.NavigateTo("/orders?yours=true", forceLoad: true)'>
+                                Your orders
+            </NavLink>
+
+            <a class="nav-link" asp-area="" href="/contact/index" asp-page="/contact/index">
+                Contact us
             </a>
-                 <a class="nav-link" asp-area="" href="/contact/index" asp-page="/contact/index">
-                        Contact us
-                 </a>
 
                 <form class="d-flex" action="/search">
                     
@@ -201,6 +206,8 @@
 @code {
 
     private List<Category> categories = new List<Category>();
+    
+    private ApplicationUser currentUser;
     
    
 

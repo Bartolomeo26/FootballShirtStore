@@ -2,6 +2,7 @@
 @inject ApplicationDbContext dbContext
 @inject NavigationManager NavigationManager
 @inject Microsoft.AspNetCore.Identity.UserManager<ApplicationUser> UserManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
 @using FootballShirtStore.Data
 @using FootballShirtStore.Entities
 @using Microsoft.EntityFrameworkCore
@@ -9,7 +10,7 @@
 
 <PageTitle>Orders</PageTitle>
 
-<h3>Users orders</h3>
+<h3>Orders</h3>
 @if (orders != null && orders.Any())
 {
     <div class="d-flex flex-column">
@@ -17,24 +18,27 @@
 
             @foreach (var order in orders)
             {
-                    <div class="ms-2">
+                if (currentUser is not null && (order.User.Id == currentUser.Id || (currentUser.IsAdmin && !isAdmin)))
+                {
+                    <div class="ms-2 mt-2">
                         <a href="/orders/@order.Id" class="item-card">
                             <div class="card d-flex flex-column align-items-start position-relative" style="width: 20rem;">
                                 <div class="card-body">
-                                <p class="card-text fw-bold fs-5 positon-absolute bottom-0">Status: @order.State</p>
-                                    
-                               
-                                
-                                <p class="card-text fw-bold fs-5 positon-absolute mt-3 bottom-0">Delivery method: @order.DeliveryMethod</p>
-                                <p class="card-text fw-bold fs-5 positon-absolute bottom-0">Payment method: @order.PaymentMethod</p>
-                                <h5 class="card-title mb-2">Total price: @order.TotalPrice zł</h5>
-                                <small class="card-text text-secondary d-block">Date created: @order.DateCreated</small>
-                                <small class="card-text text-secondary">Order Id: @order.Id</small>
+                                    <p class="card-text fw-bold fs-5 positon-absolute bottom-0">Status: @order.State</p>
+
+
+
+                                    <p class="card-text fw-bold fs-5 positon-absolute mt-3 bottom-0">Delivery method: @order.DeliveryMethod</p>
+                                    <p class="card-text fw-bold fs-5 positon-absolute bottom-0">Payment method: @order.PaymentMethod</p>
+                                    <h5 class="card-title mb-2">Total price: @order.TotalPrice zł</h5>
+                                    <small class="card-text text-secondary d-block">Date created: @order.DateCreated</small>
+                                    <small class="card-text text-secondary">Order Id: @order.Id</small>
                                 </div>
                             </div>
                         </a>
 
                     </div>
+                }
             }
         </div>
     </div>
@@ -48,14 +52,31 @@ else
 
 @code {
 
+    private ApplicationUser currentUser;
     private List<Order> orders;
+    private bool isAdmin;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var User = authState.User;
+        // Get the current authenticated user
+        var user = await UserManager.GetUserAsync(User);
+
+        if (user != null)
+        {
+            currentUser = user;
+
+        }
+    }
 
     protected override void OnInitialized()
     {
         // Pobierz wszystkie przedmioty z bazy danych
         orders = dbContext.Orders.Include(o => o.User).ToList();
 
-       
+        isAdmin = NavigationManager.Uri.Contains("?yours=");
+        
 
 
         StateHasChanged();

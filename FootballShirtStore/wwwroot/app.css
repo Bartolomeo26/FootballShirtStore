@@ -70,7 +70,10 @@ section {
     font-size: 1.1rem;
     cursor: pointer;
 }
+.nav-link{
+    cursor:pointer;
 
+}
     .nav-item ul {
         list-style-type: none;
         padding: 0;
